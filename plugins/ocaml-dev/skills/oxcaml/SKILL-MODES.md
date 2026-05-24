@@ -359,5 +359,66 @@ Certain modalities imply others for soundness:
 - `immutable` implies `contended`
 - `read` implies `shared`
 
+---
+
+## Borrowing (5.2.0minus-31+)
+
+The `borrow_` keyword is a prefix expression form (`borrow_ e`) that
+cooperates with the uniqueness analysis. It's the first piece of
+OxCaml's forthcoming borrow-checker exposed to users.
+
+### Syntax
+
+`borrow_ e` parses as a prefix expression — **anywhere an expression
+is valid**. Per the PR (#5215): "Borrows now naturally fail with mode
+errors when used incorrectly rather than being artificially restricted
+by context checks." So parsing is permissive; the typechecker rejects
+uses that conflict with uniqueness.
+
+Positions where you actually want to use it:
+
+```ocaml
+(* 1. Function-argument position (most common) *)
+f (borrow_ r)
+
+(* 2. Let-binding right-hand side *)
+let y = borrow_ r in ...
+
+(* 3. Match scrutinee *)
+match borrow_ r with _ -> ...
+```
+
+### New Diagnostics
+
+- **Warning 216 `use-during-borrowing`** — description: "Use of a value
+  during an active borrow." Fires when a value is used while being
+  borrowed.
+- **Error `Unique_use_during_borrowing`** — the uniqueness analysis
+  detected a conflict between a borrow and a unique use. Carries the
+  region location, borrow occurrence, and a `cannot_force` reason.
+
+The PR also improved error reporting so that explicit borrows show
+"borrowed" in messages rather than the generic "used".
+
+### When to Use It
+
+Use `borrow_` at call sites where a callee reads/writes through a
+unique value transiently but you don't want to give up the unique
+reference. Borrowing is *not* a replacement for `@ unique` on
+parameters — it's complementary: borrowing lets a unique value survive
+a call that would otherwise consume it.
+
+```ocaml
+(* Callee reads through a unique ref transiently *)
+val inspect : 'a ref -> int
+
+let example r =          (* r is unique *)
+  let n = inspect (borrow_ r) in
+  free r;                (* still works - borrow didn't consume r *)
+  n
+```
+
+---
+
 See also: [SKILL-STACK-ALLOCATION.md](SKILL-STACK-ALLOCATION.md) for locality details,
 [SKILL-UNIQUENESS.md](SKILL-UNIQUENESS.md) for uniqueness patterns.

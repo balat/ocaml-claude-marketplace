@@ -7,6 +7,49 @@ You are writing code for the OxCaml compiler, a performance-focused fork of
 OCaml with Jane Street extensions. This guide covers OxCaml-specific features.
 You should already know standard OCaml.
 
+**Current target**: OxCaml `5.2.0minus-31`. The OCaml runtime reports
+itself as `5.2.0+ox` (unchanged from `5.2.0minus-25` — the runtime base
+has not moved). What did change in this window is the **bootstrap
+toolchain requirement**: building OxCaml now needs upstream OCaml
+`5.4.0` on `PATH` (previously `4.14.1`), via the `oxcaml-dev` opam
+package. A handful of 5.4.0 stdlib features (notably `Format_doc`, the
+`caml_array_make` symbol rename) were backported.
+
+See [CHANGES-25-31.md](CHANGES-25-31.md) for what changed since
+`5.2.0minus-25`, and [CHANGES-23-25.md](CHANGES-23-25.md) for the prior
+window. The upgrade guide at the bottom of CHANGES-25-31.md is the
+right starting point when bumping a project between these versions.
+
+### Quick Upgrade Flags (25 → 31)
+
+When diagnosing build failures after a version bump, check these first:
+
+- **Bootstrap compiler** — building OxCaml now needs upstream OCaml `5.4.0`
+  on `PATH` (was `4.14.1`). The OxCaml runtime itself is still `5.2.0+ox`
+  — this is only the dev-time requirement. Use the `oxcaml-dev` opam
+  package per `HACKING.md`.
+- **Reserved keywords** — `borrow_`, `poly_`, `repr_`, `kind_`, plus literals
+  `#true`, `#false`, `#()` are now reserved. Identifiers collide → rename.
+- **`kind_abbrev_` → `kind_`** — the keyword was renamed. Mechanical fix.
+- **Mixed block layout v4 → v5** — `mixed_block_layout_v4` gone; use
+  `mixed_block_layout_v5`. C macro renames to match.
+- **`Effect` low-level primitives refactored** — public `('a, 'b)
+  continuation` is unchanged; internal `cont` gained a termination type
+  parameter and low-level primitives were renamed. Migrate
+  `caml_alloc_stack`/`%runstack` → `%with_stack`, and update `%resume`
+  call sites.
+- **Array primitive bindings** — `Array.make` / `Array.create_float` now
+  bind to `caml_array_make` / `caml_array_create_float`. Re-promote any
+  zero-alloc-checker expect tests. The old C symbols remain as shims,
+  so C externals linking against them still work.
+- **Non-`value` base kinds imply `mod external_`** — if you need the unmoded
+  form, use `_internal` (e.g. `bits64_internal`).
+- **`Obj.raw_field` / `Obj.set_raw_field` no longer `external`** — they're
+  now regular `val`s.
+
+See CHANGES-25-31.md § *Breaking Changes and Upgrade Guide* for the full list
+and an ordered checklist.
+
 ## Detailed Guides
 
 For in-depth coverage of each feature, see:
@@ -37,6 +80,8 @@ let g (x @ local) = ...                 (* local parameter *)
 (* Unboxed types *)
 let x : float# = #3.14                  (* unboxed float *)
 let y : int32# = #42l                   (* unboxed int32 *)
+let b : bool# = #true                   (* unboxed bool (5.2.0minus-31+) *)
+let u : unit# = #()                     (* unboxed unit (5.2.0minus-31+) *)
 type t = { a : int; b : float# }        (* mixed block record *)
 
 (* Modes on values *)
@@ -65,6 +110,15 @@ let #(x, y, z) = fork_join3 par f1 f2 f3
 
 (* Zero-alloc annotation *)
 let[@zero_alloc] fast_add x y = x + y
+
+(* Borrowing (5.2.0minus-31+) - prefix form cooperating with uniqueness *)
+let r = ref 0 in f (borrow_ r)          (* typical: function argument *)
+
+(* Implicit kinds in signatures (5.2.0minus-31+) *)
+module type S = sig
+  [@@@implicit_kind: ('elt : word)]
+  type 'elt collection                  (* 'elt defaults to kind word *)
+end
 ```
 
 ---
@@ -183,10 +237,12 @@ int32#     (* 32-bit int, kind bits32 *)
 int64#     (* 64-bit int, kind bits64 *)
 nativeint# (* native int, kind word *)
 float32#   (* 32-bit float, kind float32 *)
-int8#      (* 8-bit int - untagged *)
-int16#     (* 16-bit int - untagged *)
+int8#      (* 8-bit int - untagged, kind bits8 *)
+int16#     (* 16-bit int - untagged, kind bits16 *)
 int#       (* native int - untagged *)
 char#      (* 8-bit char - untagged, same layout as int8# *)
+bool#      (* 8-bit bool, kind bits8 (5.2.0minus-31+) *)
+unit#      (* zero-size, kind void (5.2.0minus-31+) *)
 
 (* Literals use # prefix *)
 let x : float# = #3.14
@@ -196,6 +252,8 @@ let w : float32# = #1.0s
 let a : int8# = #42s       (* int8# literal *)
 let b : int16# = #42S      (* int16# literal *)
 let c : char# = #'x'       (* char# literal *)
+let d : bool# = #true      (* bool# literal - also #false *)
+let e : unit# = #()        (* unit# literal *)
 
 (* Boxed versions (heap-allocated) *)
 let a : float = 3.14       (* boxed *)
@@ -635,7 +693,64 @@ val with_capsule : 'a capsule -> ('a @ local -> 'b) -> 'b
 
 ---
 
-## 11. Miscellaneous Extensions
+## 11. Borrowing (5.2.0minus-31+)
+
+The `borrow_` keyword is a prefix expression form (`borrow_ e`) that
+cooperates with the uniqueness analysis. It parses anywhere an
+expression is valid — misuse produces **mode errors**, not parse
+errors. Typical positions where you'll actually want it:
+
+```ocaml
+let update_if_positive r =
+  if !r > 0 then f (borrow_ r)     (* common: function argument *)
+
+let y = borrow_ r in ...           (* let-binding RHS *)
+
+match borrow_ r with _ -> ...      (* match scrutinee *)
+```
+
+Diagnostics:
+
+- **Warning 216 `use-during-borrowing`** — "Use of a value during an
+  active borrow." Raised when a value is used while being borrowed.
+- **Error `Unique_use_during_borrowing`** — the uniqueness analysis
+  detected a conflict between a borrow and a unique use.
+
+Use `borrow_` where a callee only reads/writes through a unique value
+transiently and you want to keep the unique reference after the call.
+
+---
+
+## 12. Implicit Kinds in Signatures (5.2.0minus-31+)
+
+A floating `[@@@implicit_kind: ...]` attribute at the top of a signature
+declares that specific type-variable names default to a chosen kind. It
+saves repetitive per-declaration annotations:
+
+```ocaml
+module type Word_collection = sig
+  [@@@implicit_kind: ('elt : word)]
+
+  type 'elt collection
+  val singleton : 'elt -> 'elt collection
+  val length : 'elt collection -> int
+end
+```
+
+Multiple names at once:
+
+```ocaml
+[@@@implicit_kind: ('a : immediate) * ('b : immediate)]
+val swap : 'a * 'b -> 'b * 'a
+```
+
+Rules: implicit kinds can't be overridden in nested signatures, don't
+propagate through `include`, apply inside `constraint` clauses, and are
+not legal in structures. See [SKILL-KINDS.md](SKILL-KINDS.md) for details.
+
+---
+
+## 13. Miscellaneous Extensions
 
 ### Labeled Tuples
 

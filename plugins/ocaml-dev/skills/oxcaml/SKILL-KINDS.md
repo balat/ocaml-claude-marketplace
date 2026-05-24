@@ -12,17 +12,24 @@ how values are stored, passed, and what operations are valid.
 
 ```
 any                              (* Top kind - any layout *)
-├── value                        (* Standard OCaml boxed values *)
-│   └── immediate                (* Unboxed integers, no GC scanning *)
-│       └── immediate64          (* Immediate on 64-bit only *)
-├── void                         (* Uninhabited, zero size *)
+├── value_or_null                (* Standard OCaml values, possibly null *)
+│   └── value                    (* Standard OCaml boxed values *)
+│       └── immediate            (* Unboxed integers, no GC scanning *)
+│           └── immediate64      (* Immediate on 64-bit only *)
+├── void                         (* Zero size — unit# lives here *)
 ├── float64                      (* Unboxed 64-bit float *)
 ├── float32                      (* Unboxed 32-bit float *)
+├── bits8                        (* Unboxed 8-bit integer; bool# lives here *)
+├── bits16                       (* Unboxed 16-bit integer *)
 ├── bits32                       (* Unboxed 32-bit integer *)
 ├── bits64                       (* Unboxed 64-bit integer *)
 ├── word                         (* Native word size *)
-└── vec128 / vec256              (* SIMD vectors *)
+└── vec128 / vec256 / vec512     (* SIMD vectors *)
 ```
+
+Note: as of 5.2.0minus-31, all non-`value` base kinds listed above imply
+`mod external_` by default. Use the `_internal` suffix (e.g.
+`bits64_internal`) to refer to the unmoded form.
 
 ## Basic Kind Annotations
 
@@ -87,6 +94,42 @@ mutable_data    (* value mod non_float - records with mutable fields *)
 immutable_data  (* value mod non_float immutable *)
 ```
 
+### Kind Declarations (`kind_` keyword)
+
+Define a reusable kind alias with `kind_`. **In 5.2.0minus-31+ this is
+`kind_`** — the old `kind_abbrev_` keyword has been renamed:
+
+```ocaml
+kind_ my_int_kind = bits32 mod external_
+```
+
+If you're maintaining code that still says `kind_abbrev_`, rename it.
+Consumers of `compiler-libs` should note that the parsetree
+constructors are now `Psig_jkind` / `Pstr_jkind` carrying a
+`jkind_declaration` record.
+
+### Non-`value` Base Kinds Imply `mod external_` (5.2.0minus-31+)
+
+The following base kinds now **implicitly include `mod external_`** so
+that write-barrier elision applies automatically:
+
+`bits8`, `bits16`, `bits32`, `bits64`, `float32`, `float64`,
+`untagged_immediate`, `vec128`, `vec256`, `vec512`, `void`, `word`.
+
+To express the unmoded form, append `_internal`:
+
+```ocaml
+(* These are the same *)
+type t : bits64
+type t : bits64_internal mod external_
+
+(* Unmoded — rare; values may need scanning *)
+type t : bits64_internal
+```
+
+Prefer the short form. Only reach for `*_internal` when you need a type
+whose unboxed storage is nonetheless subject to the GC write barrier.
+
 ### What Types Have Which Kinds?
 
 | Type | Kind |
@@ -100,6 +143,10 @@ immutable_data  (* value mod non_float immutable *)
 | `int64#` | `bits64` |
 | `float32#` | `float32` |
 | `nativeint#` | `word` |
+| `int8#`, `char#` | `bits8` |
+| `int16#` | `bits16` |
+| `bool#` | `bits8` |
+| `unit#` | `void` |
 | `int8x16#`, etc. | `vec128` |
 | `int8x32#`, etc. | `vec256` |
 | `int8# array` | `value` (specialized subkind) |
@@ -204,6 +251,67 @@ type pair = int * int
 type upair = #(int * int)
 (* Kind: value & value mod everything *)
 ```
+
+---
+
+## Implicit Kinds in Signatures (5.2.0minus-31+)
+
+A floating attribute `[@@@implicit_kind: ...]` declares that specific
+type-variable names in a signature default to a chosen kind. The goal
+is to avoid repeating the same `('a : k)` annotation on every
+declaration.
+
+```ocaml
+module type S = sig
+  [@@@implicit_kind: ('elt : word)]
+
+  type 'elt collection
+  val singleton : 'elt -> 'elt collection
+  val length : 'elt collection -> int
+end
+
+(* Equivalent to: *)
+module type S = sig
+  type ('elt : word) collection
+  val singleton : ('elt : word). 'elt -> 'elt collection
+  val length : ('elt : word). 'elt collection -> int
+end
+```
+
+### Multiple Bindings in One Attribute
+
+Use product syntax:
+
+```ocaml
+[@@@implicit_kind: ('a : immediate) * ('b : immediate)]
+
+val swap : 'a * 'b -> 'b * 'a
+```
+
+### Rules and Limits
+
+- **Can't override**: a variable declared with an implicit kind must
+  always have that kind. Narrowing or contradicting it is an error.
+- **Inherited by nested signatures**: a `module type` or `sig` *within*
+  the same module type sees the outer `[@@@implicit_kind: ...]`
+  declaration.
+- **Can't be re-declared** in a nested signature. This is an error ("The
+  implicit kind for X is already defined at ...").
+- **No propagation through `include`**: if `T` does `include S`, the
+  implicit kinds declared in `S` do **not** carry over into `T`.
+- **`constraint` clauses**: implicit kinds apply, so a `constraint` on
+  `'elt` respects the declared kind. In fact, implicit kinds are
+  currently the only way to set a constraint to certain kind values.
+- **Structures**: `[@@@implicit_kind: ...]` is not legal inside a
+  structure — signatures only.
+
+### When to Reach for It
+
+Use implicit kinds when a signature is dominated by functions taking
+one or two named type variables at a non-`value` kind — typical for
+libraries specialised to `word`, `bits64`, or an immediate. It's not
+meant as a replacement for `ppx_template` for kind-polymorphic code
+that also needs a `value` instantiation.
 
 ---
 
@@ -360,10 +468,12 @@ type measurement = {
 | `immediate` | `int`, `bool`, `char` | No | 1 word |
 | `float64` | `float#` | No | 8 bytes |
 | `float32` | `float32#` | No | 4 bytes |
+| `bits8` | `int8#`, `char#`, `bool#` | No | 1 byte |
+| `bits16` | `int16#` | No | 2 bytes |
 | `bits32` | `int32#` | No | 4 bytes |
 | `bits64` | `int64#` | No | 8 bytes |
 | `word` | `nativeint#` | No | native |
-| `void` | (uninhabited) | - | 0 |
+| `void` | `unit#` | - | 0 |
 | `any` | (any of above) | Varies | Varies |
 
 See also: [SKILL-UNBOXED.md](SKILL-UNBOXED.md) for unboxed types,

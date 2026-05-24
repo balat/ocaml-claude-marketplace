@@ -500,10 +500,52 @@ let add_vec4 a b = {
 
 ---
 
+## int16 x86 Intrinsics (5.2.0minus-31+)
+
+The `simdgen` extension now emits the 0x66 operand-size-override prefix,
+unlocking int16-width variants of existing instructions (#5407). Runtime
+helpers include `caml_popcnt_int16`, `caml_lzcnt_int16`, and
+`caml_bmi_tzcnt_int16`.
+
+---
+
+## Arm64: Wide Vectors Lowered as Tuples (5.2.0minus-31+)
+
+On arm64, vectors wider than the platform's native register width are
+lowered to tuples during codegen (#5291). A new `Pvec_reinterpret`
+primitive bridges boxed/unboxed conversion. Practical impact: code that
+uses 256-bit vectors on arm64 will compile, but at a representation
+cost — prefer native-width operations where performance matters.
+
+---
+
+## AMD64: Boxed Vectors Now Tag 0 (5.2.0minus-31+)
+
+Boxed vectors on amd64 now use tag 0 in the block header (#5410). Code
+that inspects vector block tags via `Obj.tag` or by reading the header
+directly will observe the new value.
+
+---
+
+## Arrays of Unboxed Vector Pairs (5.2.0minus-31+)
+
+Arrays of unboxed pairs of `vec128` are now allowed (#5239):
+
+```ocaml
+(* Array of #(vec128, vec128) — laid out as flat pairs *)
+let pairs : #(int32x4# * int32x4#) array = ...
+```
+
+This unlocks a common SIMD pattern (pair of vectors representing a
+complex-vector lane or a wider-than-register value) without the
+per-element allocation the previous layout forced.
+
+---
+
 ## Limitations
 
-- x86-64 only (ARM NEON coming soon)
-- Requires SSE2 minimum, AVX/AVX2 for 256-bit
+- x86-64 and arm64 supported; wide vectors on arm64 lower to tuples
+- Requires SSE2 minimum, AVX/AVX2 for 256-bit on x86
 - BMI/BMI2 require specific CPU support (Haswell+)
 - No auto-vectorization (explicit SIMD required)
 - Alignment not automatically guaranteed

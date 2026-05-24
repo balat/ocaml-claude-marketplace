@@ -20,10 +20,15 @@ OCaml's type safety.
 | `int64` | `int64#` | `bits64` | 64-bit | `#100L` |
 | `nativeint` | `nativeint#` | `word` | native | `#50n` |
 | `float32` | `float32#` | `float32` | 32-bit | `#1.0s` |
-| `int8` | `int8#` | - | 8-bit | `#42s` |
-| `int16` | `int16#` | - | 16-bit | `#42S` |
+| `int8` | `int8#` | `bits8` | 8-bit | `#42s` |
+| `int16` | `int16#` | `bits16` | 16-bit | `#42S` |
 | `int` | `int#` | - | native | `#42` (untagged) |
-| - | `char#` | - | 8-bit | `#'a'` |
+| - | `char#` | `bits8` | 8-bit | `#'a'` |
+| `bool` | `bool#` | `bits8` | 8-bit | `#true` / `#false` |
+| `unit` | `unit#` | `void` | 0 | `#()` |
+
+The `bool#` and `unit#` entries are **new in 5.2.0minus-31** (PRs #5166
+and #5156, respectively).
 
 ### Creating Unboxed Values
 
@@ -34,11 +39,48 @@ let y : int32# = #42l
 let z : int64# = #1_000_000L
 let w : float32# = #2.5s
 let c : char# = #'x'
+let b : bool# = #true           (* or #false *)
+let u : unit# = #()
 
 (* From boxed values *)
 let a : float# = Float_u.of_float 3.14
 let b : int32# = Int32_u.of_int32 42l
 ```
+
+### Unboxed Booleans (5.2.0minus-31+)
+
+`bool#` has kind `bits8 mod external_`. It's a true primitive — no
+allocation, no boxing, and constructors `#true` / `#false` work in both
+expressions and patterns:
+
+```ocaml
+let classify (b : bool#) : int =
+  match b with
+  | #false -> 0
+  | #true  -> 1
+
+(* Flat in records *)
+type flag = { enabled : bool#; count : int }
+```
+
+Use `bool#` where you previously reached for `int8#` as a boolean
+surrogate — the intent is clearer and the compiler can specialise.
+
+### Unboxed Unit (5.2.0minus-31+)
+
+`unit#` has kind `void mod everything` and no runtime representation:
+
+```ocaml
+let discard (x : unit#) : int =
+  match x with
+  | #() -> 0
+
+let noop () : unit# = #()
+```
+
+Typical uses: eliminating a final-continuation argument in generic
+code; filler in kind products where something is required but carries
+no information; modelling C-style `void` returns without boxing.
 
 ---
 
@@ -93,7 +135,21 @@ let process : #(float# * float#) -> float# = fun #(a, b) ->
 
 ## Mixed Blocks
 
-Records can mix boxed and unboxed fields:
+Records can mix boxed and unboxed fields. As of 5.2.0minus-31, block
+indices into mixed products use a **52-bit offset and 12-bit gap**, and
+the layout version bumped from v4 to v5:
+
+```ocaml
+(* Old (pre-5.2.0minus-31) *)
+let _ = Stdlib_upstream_compatible.mixed_block_layout_v4
+
+(* New *)
+let _ = Stdlib_upstream_compatible.mixed_block_layout_v5
+```
+
+C code that asserts on mixed-block layout needs the matching rename:
+`Assert_mixed_block_layout_v4` → `Assert_mixed_block_layout_v5`.
+
 
 ```ocaml
 type particle = {
@@ -357,6 +413,30 @@ CAMLprim value boxed_sin(value v) {
   return caml_copy_double(unboxed_sin(Double_val(v)));
 }
 ```
+
+---
+
+## Small-Int Bit Intrinsics (5.2.0minus-31+)
+
+`ctz`, `clz`, and `popcnt` are now available for `int8#` and `int16#`
+(#5393). On x86 the runtime exposes:
+
+- `caml_popcnt_int16`
+- `caml_lzcnt_int16`
+- `caml_bmi_tzcnt_int16`
+
+Use these in conjunction with packed `int8# array` / `int16# array`
+storage to keep bit-level loops in register-resident code paths.
+
+---
+
+## Small-Int Indexing (5.2.0minus-31+)
+
+Arrays, strings, bigstrings, and bytes can now store `int8`/`int16#`
+values and be indexed by `int8#` / `int16#` (#4779). New primitives:
+
+- `%caml_bytes_geti8`, `%caml_bytes_geti16` (sign-extending reads)
+- `get8` / `set8` / `set16` family with `*_indexed_by_*` variants
 
 ---
 
