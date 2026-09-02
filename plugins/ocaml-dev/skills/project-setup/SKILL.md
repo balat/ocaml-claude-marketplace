@@ -29,27 +29,28 @@ Every OCaml project needs:
 ```ocaml
 (* lib/user.mli *)
 
-(** User management.
+(** User accounts.
 
-    This module provides types and functions for user operations. *)
+    A user is identified by an email address, which is unique within a
+    workspace. *)
 
 type t
-(** A user. *)
+(** The type for users. *)
 
 val create : name:string -> email:string -> t
-(** [create ~name ~email] creates a new user. *)
+(** [create ~name ~email] is a new user called [name] with address [email]. *)
 
 val name : t -> string
-(** [name u] is the user's name. *)
+(** [name u] is the display name of [u]. *)
 
 val pp : t Fmt.t
-(** [pp] is a pretty-printer for users. *)
+(** [pp ppf u] formats [u] on [ppf]. *)
 ```
 
-**Documentation style**:
-- Functions: `[name args] is/does ...`
-- Values: `[name] is ...`
-- End with period
+**Documentation style**: written in the voice of a POSIX manual page. Load the
+`doc-style` skill before writing any of it. In short, a function's doc opens
+`[f x y] is ...`, every doc comment is full sentences ending in a full stop, no
+colon or em dash joins clauses, and nothing describes the implementation.
 
 ## Standard Module Interface
 

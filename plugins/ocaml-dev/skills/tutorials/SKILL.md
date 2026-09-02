@@ -15,6 +15,11 @@ Invoke this skill when:
 
 ## Overview
 
+Prose in `.mld` pages and in the doc comments a tutorial quotes follows the
+`doc-style` skill. Load it before writing them. A tutorial may address the
+reader and explain motivation, which reference documentation may not, but the
+sentences are still complete and free of filler.
+
 OCaml tutorials should:
 - Introduce concepts gently
 - Use executable code examples via MDX
