@@ -17,10 +17,10 @@ Project name: $ARGUMENTS (defaults to current directory name if not provided)
 Read user configuration from `~/.claude/ocaml-config.json`. If it doesn't exist, prompt the user for:
 - Author name
 - Author email
-- Preferred license (ISC, MIT, Apache-2.0)
+- Preferred license (ISC, MIT, Apache-2.0, BSD-3-Clause, MPL-2.0, LGPL-2.1 with the OCaml linking exception)
 - CI platform (github, tangled, gitlab)
 - Git hosting (github.com/user, tangled.org/@user, gitlab.com/user)
-- OCaml version minimum (default: 5.2.0)
+- OCaml version minimum (4.14 for the widest compatibility; 5.x when the project relies on effects or domains)
 
 Offer to save configuration to `~/.claude/ocaml-config.json` for future use.
 

@@ -51,7 +51,7 @@ Comprehensive OCaml development toolkit including:
 - **effects** - Algebraic effects design (effects vs exceptions, layered design)
 
 *Library-Specific:*
-- **cmdliner** - CLI design following Daniel Bünzli's principles
+- **cmdliner** - CLI design principles and their expression with cmdliner
 - **jsont** - Type-safe JSON encoding/decoding with jsont
 - **logs** - Logging with the Logs library
 - **progress** - Terminal progress bars
@@ -61,7 +61,7 @@ Comprehensive OCaml development toolkit including:
 - **tutorials** - Tutorial creation with MDX
 
 *Testing & Profiling:*
-- **testing** - Testing strategies (including Eio mocks)
+- **testing** - Testing strategies (Alcotest, ppx_expect, QCheck, cram, Lwt and Eio)
 - **fuzz** - Fuzz testing with Crowbar (roundtrips, crash-safety, boundaries)
 - **memtrace** - Allocation profiling and hotspot analysis
 

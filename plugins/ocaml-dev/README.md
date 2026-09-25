@@ -34,7 +34,7 @@ Comprehensive OCaml development toolkit for Claude Code.
 | result | Result type patterns and Result.Syntax |
 | doc-style | Comment and ocamldoc style in the voice of a POSIX manpage |
 | review-ocaml | Two-phase project review: interfaces first, then per-module subagents |
-| testing | Testing with Alcotest, Eio mocks, cram tests |
+| testing | Alcotest, ppx_expect, QCheck, cram; Lwt and Eio tests |
 | fuzz | Fuzz testing with Crowbar for parsers and encoders |
 | security | Security hardening: integer, buffer and DoS vulnerability classes, CVE regression tests |
 
@@ -50,7 +50,7 @@ Comprehensive OCaml development toolkit for Claude Code.
 | Skill | Description |
 |-------|-------------|
 | eio | Eio concurrency: fibers, switches, mocks, cohttp-eio, bytesrw |
-| cmdliner | CLI design with cmdliner following Bünzli's principles |
+| cmdliner | CLI design principles and their expression with cmdliner |
 | jsont | Type-safe JSON encoding/decoding with jsont |
 | effects | OCaml 5 algebraic effects design patterns |
 | logs | Logging with the Logs library: sources, levels, reporters |
@@ -174,7 +174,7 @@ Templates are in `skills/*/templates/`:
 - CI configurations (GitHub, Tangled, GitLab)
 - dune-project and dune file templates
 - License files (ISC, MIT)
-- Test templates (basic, Eio mock)
+- Test templates (basic, Lwt, Eio mock)
 - npm publishing templates
 
 ## License
