@@ -281,10 +281,10 @@ let setup_test f () =
   Eio.Switch.run @@ fun sw ->
   let fs = Eio.Stdenv.fs env in
   let tmp = Eio.Path.(fs / Filename.get_temp_dir_name () / "test-dir") in
-  (try Eio.Path.rmtree tmp with _ -> ());
+  (try Eio.Path.rmtree tmp with Eio.Io _ -> ());
   Eio.Path.mkdirs ~exists_ok:true ~perm:0o755 tmp;
   Fun.protect
-    ~finally:(fun () -> try Eio.Path.rmtree tmp with _ -> ())
+    ~finally:(fun () -> try Eio.Path.rmtree tmp with Eio.Io _ -> ())
     (fun () -> f ~sw tmp)
 
 let test_something = setup_test @@ fun ~sw tmp ->

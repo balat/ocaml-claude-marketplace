@@ -118,7 +118,7 @@ When writing fuzz tests, follow these conventions:
 3. **Use `bytes` directly** instead of custom generators
 4. **Use a `truncate` helper** to limit input size for protocol messages
 5. **Return `()` directly** - no need for `check true` in most cases
-6. **Add `Crypto_rng_unix.use_default ()`** at the top if crypto is used
+6. **Add `Mirage_crypto_rng_unix.use_default ()`** at the top if crypto is used
 
 ### Example structure
 
@@ -162,7 +162,7 @@ let run () =
 
 ```ocaml
 (* Initialize crypto RNG if needed by any module *)
-let () = Crypto_rng_unix.use_default ()
+let () = Mirage_crypto_rng_unix.use_default ()
 
 (* Register all fuzz tests *)
 let () =
@@ -202,7 +202,7 @@ let run () =
 - Use `bytes` generator for arbitrary binary input (produces `string` type)
 - Use `ignore` to discard results without warnings
 - Use `| exception _ -> ()` to catch any exceptions
-- `check true` signals test passed
+- Return `()`; `check true` is only needed where a branch would otherwise be empty
 
 ### 2. Roundtrip test (encode/decode pairs)
 
