@@ -33,7 +33,7 @@ In `lib/js/dune`:
 (library
  (name mylib_js)
  (public_name mylib-js)
- (libraries mylib brr)
+ (libraries mylib brr)   ; or js_of_ocaml, for the Js_of_ocaml bindings
  (modes byte)
  (modules mylib_js))
 
@@ -126,7 +126,7 @@ See `templates/` for:
 ```
 
 Key points:
-- Use `"browser"` not `"main"` (js_of_ocaml is browser-only)
+- Use `"browser"` for a package meant for browsers; js_of_ocaml output also runs under Node, in which case set `"main"`
 - Point repository URL to `#npm` branch
 - Include WASM assets directory
 
