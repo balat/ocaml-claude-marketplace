@@ -20,28 +20,30 @@ Comprehensive OCaml development toolkit for Claude Code.
 
 | Skill | Description |
 |-------|-------------|
-| ocaml-project-setup | Project structure, dune-project, .mli files, CI configuration |
-| ocaml-dune-migration | Migrating from ocamlbuild/topkg to dune (_tags, .mllib, pkg.ml) |
-| ocaml-npm-publishing | Publishing to npm via js_of_ocaml and wasm_of_ocaml |
+| project-setup | Project structure, dune-project, .mli files, CI configuration |
+| dune-migration | Migrating from ocamlbuild/topkg to dune (_tags, .mllib, pkg.ml) |
+| npm-publishing | Publishing to npm via js_of_ocaml and wasm_of_ocaml |
+| rfc-integration | Working with IETF RFCs, OCamldoc citations |
 
 #### Code Quality
 
 | Skill | Description |
 |-------|-------------|
-| ocaml-code-style | Refactoring patterns, naming conventions, module hygiene |
+| ocaml | General OCaml development guidance: interfaces, errors, logging, naming |
+| code-style | Refactoring patterns, naming conventions, module hygiene |
+| result | Result type patterns and Result.Syntax |
 | doc-style | Comment and ocamldoc style in the voice of a POSIX manpage |
 | review-ocaml | Two-phase project review: interfaces first, then per-module subagents |
-| ocaml-testing | Testing with Alcotest, Eio mocks, cram tests |
+| testing | Testing with Alcotest, Eio mocks, cram tests |
 | fuzz | Fuzz testing with Crowbar for parsers and encoders |
+| security | Security hardening: integer, buffer and DoS vulnerability classes, CVE regression tests |
 
 #### Documentation
 
 | Skill | Description |
 |-------|-------------|
 | ocaml-docs | Fixing odoc warnings, reference syntax, cross-package refs |
-| doc-style | What the prose should say: manpage voice, `[f x y] is ...`, no filler |
-| ocaml-tutorials | Creating .mld tutorials with MDX executable examples |
-| ocaml-rfc-integration | Working with IETF RFCs, OCamldoc citations |
+| tutorials | Creating .mld tutorials with MDX executable examples |
 
 #### Libraries & Frameworks
 
@@ -51,6 +53,8 @@ Comprehensive OCaml development toolkit for Claude Code.
 | cmdliner | CLI design with cmdliner following Bünzli's principles |
 | jsont | Type-safe JSON encoding/decoding with jsont |
 | effects | OCaml 5 algebraic effects design patterns |
+| logs | Logging with the Logs library: sources, levels, reporters |
+| progress | Terminal progress bars with the progress library |
 
 #### Performance & Advanced
 
@@ -62,10 +66,11 @@ Comprehensive OCaml development toolkit for Claude Code.
 ### LSP Integration
 
 Includes ocamllsp configuration for enhanced code intelligence:
-- `.ml` - OCaml source
-- `.mli` - OCaml interface
-- `.mly` - Menhir grammar
-- `.mll` - OCamllex lexer
+- `.ml`, `.mli` - OCaml source and interface
+- `.mly`, `.mll` - Menhir grammar, OCamllex lexer
+- `.mlx` - OCaml with JSX-like syntax
+- `.eliom`, `.eliomi` - Eliom (Ocsigen) source and interface
+- `.re`, `.rei` - Reason source and interface
 
 ## Configuration
 

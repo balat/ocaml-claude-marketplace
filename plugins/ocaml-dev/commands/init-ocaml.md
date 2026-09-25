@@ -59,7 +59,7 @@ Offer to save configuration to `~/.claude/ocaml-config.json` for future use.
 1. Check if directory is empty or confirm overwrite
 2. Read or prompt for configuration
 3. Determine project name from argument or directory
-4. Create all files using templates from the ocaml-project-setup skill
+4. Create all files using templates from the project-setup skill
 5. Run `dune build @check` to verify setup
 6. Report success and suggest next steps
 
