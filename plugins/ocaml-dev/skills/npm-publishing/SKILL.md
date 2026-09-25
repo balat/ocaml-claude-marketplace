@@ -1,6 +1,6 @@
 ---
 name: npm-publishing
-description: Publishing OCaml to npm via js_of_ocaml and wasm_of_ocaml. Use when discussing browser targets, JavaScript compilation, WASM output, npm packages, or the two-branch workflow.
+description: Publishing OCaml libraries to npm via js_of_ocaml and wasm_of_ocaml. Use when preparing an npm package from OCaml code, setting up an npm release workflow or release branch, or writing package.json for js_of_ocaml or wasm_of_ocaml output. Not for general js_of_ocaml compilation questions.
 ---
 
 # OCaml to NPM Publishing
