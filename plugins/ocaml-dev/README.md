@@ -102,7 +102,7 @@ User settings are read from `~/.claude/ocaml-config.json`:
 
 | Field | Description | Values |
 |-------|-------------|--------|
-| `license` | Default license for new projects | `ISC`, `MIT`, `Apache-2.0` |
+| `license` | Default license for new projects | `ISC`, `MIT`, `Apache-2.0`, `BSD-3-Clause`, `MPL-2.0`, `LGPL-2.1-or-later WITH OCaml-LGPL-linking-exception` |
 | `ci_platform` | CI system for new projects | `github`, `tangled`, `gitlab` |
 | `git_hosting.type` | Git hosting provider | `github`, `tangled`, `gitlab` |
 | `ocaml_version` | Minimum OCaml version | e.g., `5.2.0` |
