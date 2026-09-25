@@ -45,16 +45,34 @@ Comprehensive OCaml development toolkit for Claude Code.
 | ocaml-docs | Fixing odoc warnings, reference syntax, cross-package refs |
 | tutorials | Creating .mld tutorials with MDX executable examples |
 
+#### Concurrency
+
+| Skill | Description |
+|-------|-------------|
+| lwt | Lwt: promises and binding styles, errors, racing and joining, cancellation, blocking calls, browser event loops |
+| eio | Eio: fibers, switches, cancellation, networking with cohttp-eio, mocks, bytesrw streaming |
+| effects | OCaml 5 effects: effects versus exceptions, layered design, schedulers, Lwt interoperation |
+
 #### Libraries & Frameworks
 
 | Skill | Description |
 |-------|-------------|
-| eio | Eio concurrency: fibers, switches, mocks, cohttp-eio, bytesrw |
 | cmdliner | CLI design principles and their expression with cmdliner |
 | jsont | Type-safe JSON encoding/decoding with jsont |
-| effects | OCaml 5 algebraic effects design patterns |
 | logs | Logging with the Logs library: sources, levels, reporters |
 | progress | Terminal progress bars with the progress library |
+
+#### Web with Ocsigen
+
+| Skill | Description |
+|-------|-------------|
+| ocsigen-overview | What Ocsigen is, what it checks at compile time, when to choose it |
+| eliom-server-side | Server-side sites with Eliom and Ocsigen Server: services, typed parameters, links and forms, sessions, continuations |
+| eliom-architecture | Multi-tier Eliom applications: tiers, rendering model, registration on both tiers, RPCs, state across tiers |
+| eliom-client-server | The client/server boundary: sections, client values and their timing, injections, integer sizes, RPC errors |
+| eliom-typed-markup | HTML and SVG with TyXML: F versus D, Manip, reactive and global nodes, no string markup |
+| ocsigen-start | Ocsigen Start applications: users, sessions, authorization, notifications, Toolkit widgets, PG'OCaml, i18n |
+| ocsigen-contributing | Contributing to the Ocsigen repositories: upstreaming, templates, logging, documentation stack |
 
 #### Performance & Advanced
 

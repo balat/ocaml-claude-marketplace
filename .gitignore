@@ -1,2 +1,5 @@
 # Claude Code local settings
 .claude/
+
+# Eval results
+plugins/*/evals/results/

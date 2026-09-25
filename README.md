@@ -21,55 +21,14 @@ Then install the OCaml development plugin:
 
 ### ocaml-dev
 
-Comprehensive OCaml development toolkit including:
+Comprehensive OCaml development toolkit: five slash commands (`/init-ocaml`, `/port-to-dune`,
+`/add-rfc`, `/ocaml-npm`, `/tidy`) and thirty auto-invoked skills covering project setup and
+build, code quality and review, documentation, testing and profiling, concurrency (Lwt, Eio,
+effects), libraries (cmdliner, jsont, logs, progress), web and mobile applications with
+Ocsigen, and OxCaml, plus ocamllsp integration.
 
-**Slash Commands:**
-- `/init-ocaml [name]` - Initialize a new OCaml project with dune, opam, CI, and standard files
-- `/port-to-dune` - Migrate ocamlbuild/topkg projects to dune
-- `/add-rfc <number>` - Fetch an IETF RFC and integrate with ocamldoc citations
-- `/ocaml-npm` - Set up npm publishing for js_of_ocaml/wasm_of_ocaml projects
-- `/tidy` - Refactor OCaml code to be more idiomatic
-
-**Skills (auto-invoked):**
-
-*Project & Build:*
-- **project-setup** - Project structure, dune-project, .mli files, CI configuration
-- **dune-migration** - Build system migration (ocamlbuild/topkg to dune)
-- **npm-publishing** - npm/browser publishing workflow
-- **rfc-integration** - RFC integration and documentation
-
-*Code Quality:*
-- **ocaml** - General OCaml development guidance
-- **code-style** - Code style and refactoring patterns
-- **result** - Result type patterns
-- **doc-style** - Comment and ocamldoc style
-- **review-ocaml** - Two-phase project review
-- **security** - Security hardening and CVE regression tests
-
-*OCaml 5 & Concurrency:*
-- **eio** - Eio concurrency patterns, switches, fibers, mocks
-- **effects** - Algebraic effects design (effects vs exceptions, layered design)
-
-*Library-Specific:*
-- **cmdliner** - CLI design principles and their expression with cmdliner
-- **jsont** - Type-safe JSON encoding/decoding with jsont
-- **logs** - Logging with the Logs library
-- **progress** - Terminal progress bars
-
-*Documentation:*
-- **ocaml-docs** - Fixing odoc warnings and reference syntax
-- **tutorials** - Tutorial creation with MDX
-
-*Testing & Profiling:*
-- **testing** - Testing strategies (Alcotest, ppx_expect, QCheck, cram, Lwt and Eio)
-- **fuzz** - Fuzz testing with Crowbar (roundtrips, crash-safety, boundaries)
-- **memtrace** - Allocation profiling and hotspot analysis
-
-*OxCaml Extensions:*
-- **oxcaml** - Unboxed types, stack allocation, SIMD, zero-alloc annotations
-
-**LSP Integration:**
-- ocamllsp for `.ml`, `.mli`, `.mly`, `.mll`, `.mlx`, `.eliom`, `.eliomi`, `.re`, `.rei` files
+The full list, with a description of each skill, is in
+[plugins/ocaml-dev/README.md](plugins/ocaml-dev/README.md).
 
 ## User Configuration
 
