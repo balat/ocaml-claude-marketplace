@@ -58,8 +58,8 @@ Create `spec/` directory if it doesn't exist.
 ## Documentation Patterns
 
 Citations are the one case where a doc comment carries a reference rather than
-behaviour. Everything else follows the `doc-style` skill, which you should load
-before writing the prose around a citation.
+behaviour. Everything else follows the project's documentation voice (the `doc-style`
+skill, when the project uses the manpage voice).
 
 ### Module-Level Documentation
 

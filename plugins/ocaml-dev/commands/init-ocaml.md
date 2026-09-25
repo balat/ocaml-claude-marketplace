@@ -46,8 +46,8 @@ Offer to save configuration to `~/.claude/ocaml-config.json` for future use.
 
 1. **lib/dune** - Library stanza
 2. **lib/<project>.ml** - Main module with license header
-3. **lib/<project>.mli** - Interface with documentation, written under the
-   `doc-style` skill, which you should invoke before writing any doc comment
+3. **lib/<project>.mli** - Interface with documentation; ask which documentation voice
+   the project wants (the `doc-style` skill describes the manpage voice)
 
 ### Test Files
 
