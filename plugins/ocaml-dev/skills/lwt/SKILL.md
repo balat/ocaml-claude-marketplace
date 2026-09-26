@@ -67,6 +67,9 @@ Return with `Lwt.return x`, or the allocation-free constants `Lwt.return_unit`,
 - Inside a callback (the body of a `let%lwt`, of `Lwt.catch`, of `Lwt.async`), `raise e`
   rejects the promise. `Lwt.fail e` builds a rejected promise where an expression of type
   `_ Lwt.t` is needed outside a callback.
+- `Lwt.reraise e` is `raise e` that keeps the backtrace: it raises, it does not build a
+  rejected promise like `Lwt.fail e`, so whether it becomes a rejection depends on who
+  catches it.
 - `try ... with` around Lwt code only catches exceptions raised before the first pending
   promise; anything raised later in the chain escapes it. Use `Lwt.catch` (or `try%lwt`):
 
@@ -75,11 +78,11 @@ Return with `Lwt.return x`, or the allocation-free constants `Lwt.return_unit`,
     (fun () -> Db.find id)
     (function
       | Not_found -> Lwt.return_none
-      | e -> raise e)
+      | e -> Lwt.reraise e)
   ```
 
-- Match specific exceptions and re-raise the rest. A catch-all `| _ ->` hides programming
-  errors and cancellation.
+- Match specific exceptions and re-raise the rest with `Lwt.reraise`, which keeps the
+  backtrace. A catch-all `| _ ->` hides programming errors and cancellation.
 - `Lwt.try_bind (fun () -> p) on_success on_failure` handles both outcomes;
   `Lwt.finalize (fun () -> p) cleanup` runs `cleanup` whatever happens.
 - Fire-and-forget: `Lwt.async (fun () -> work ())`. If `work` fails, the exception is passed to
