@@ -7,7 +7,7 @@ You are writing code for the OxCaml compiler, a performance-focused fork of
 OCaml with Jane Street extensions. This guide covers OxCaml-specific features.
 You should already know standard OCaml.
 
-**Current target**: OxCaml `5.2.0minus-39` — the **latest released
+**Current target** (as of September 2026): OxCaml `5.2.0minus-39` — the **latest released
 version**, shipping as `ocaml-variants.5.2.0+ox` on the OCaml 5.2
 base. Later tags (`5.2.0minus-40`, `5.4.0-ox1`/`-ox2`) and main are
 **unreleased** development, covered by

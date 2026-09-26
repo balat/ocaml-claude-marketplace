@@ -13,15 +13,15 @@ Every OCaml project needs:
 |------|---------|
 | `dune-project` | Build configuration, opam generation |
 | `dune` (root) | Top-level build rules |
-| `.ocamlformat` | Code formatting (required) |
+| `.ocamlformat` | Code formatting (recommended) |
 | `.gitignore` | VCS ignores |
 | `LICENSE.md` | License file |
 | `README.md` | Project documentation |
-| CI config | GitHub Actions / GitLab CI / Tangled |
+| CI config | GitHub Actions, GitLab CI, Tangled, or the host in use |
 
 ## Interface Files (.mli)
 
-**Every library module must have an `.mli` file** for:
+**Every library module that other code depends on should have an `.mli` file** for:
 - Clear API boundaries
 - Proper encapsulation
 - Documentation surface
@@ -43,14 +43,14 @@ val create : name:string -> email:string -> t
 val name : t -> string
 (** [name u] is the display name of [u]. *)
 
-val pp : t Fmt.t
+val pp : Format.formatter -> t -> unit
 (** [pp ppf u] formats [u] on [ppf]. *)
 ```
 
-**Documentation style**: written in the voice of a POSIX manual page. Load the
-`doc-style` skill before writing any of it. In short, a function's doc opens
-`[f x y] is ...`, every doc comment is full sentences ending in a full stop, no
-colon or em dash joins clauses, and nothing describes the implementation.
+**Documentation style**: every exported value has a doc comment. The example above uses the
+manpage voice (`[f x y] is ...`) described in the `doc-style` skill; the Stdlib style
+(imperative sentence, `@param` and `@raise` tags) is the other common choice. Use the one
+the project already uses.
 
 ## Standard Module Interface
 
@@ -58,40 +58,25 @@ For modules with a central type `t`:
 
 ```ocaml
 type t
-val v : ... -> t                           (* pure constructor *)
-val create : ... -> (t, Error.t) result    (* constructor with I/O *)
-val pp : t Fmt.t                           (* pretty-printer - required *)
-val equal : t -> t -> bool                 (* equality *)
-val compare : t -> t -> int                (* comparison *)
-val of_json : Yojson.Safe.t -> (t, string) result
-val to_json : t -> Yojson.Safe.t
+val make : ... -> t                         (* constructor; create, v or of_* as the project names it *)
+val of_string : string -> (t, string) result (* constructor that can fail *)
+val pp : Format.formatter -> t -> unit      (* pretty-printer *)
+val equal : t -> t -> bool                  (* equality *)
+val compare : t -> t -> int                 (* comparison *)
 ```
+
+Add JSON or other conversions with the library the project uses.
 
 ## OCamlFormat Configuration
 
-**Required**: `.ocamlformat` in project root.
+Recommended: a `.ocamlformat` in the project root that pins the version, so that every
+contributor formats identically:
 
 ```
-version = 0.28.1
+version = <the version installed>
 ```
 
-Run `dune fmt` before every commit.
-
-## Logging Setup
-
-Each module using logging should declare a source:
-
-```ocaml
-let log_src = Logs.Src.create "project.module"
-module Log = (val Logs.src_log log_src : Logs.LOG)
-```
-
-Log levels:
-- `Log.app` - Always shown (startup)
-- `Log.err` - Critical errors
-- `Log.warn` - Potential issues
-- `Log.info` - Informational
-- `Log.debug` - Verbose debugging
+Run `dune fmt` before every commit once the project uses it.
 
 ## User Configuration
 
@@ -107,14 +92,20 @@ Read from `~/.claude/ocaml-config.json`:
 }
 ```
 
-## License Headers
+## License
 
-Every source file starts with license header:
+Choose the license explicitly; ask when nothing is configured. Common in the OCaml
+ecosystem: ISC, MIT, Apache-2.0, BSD-3-Clause, MPL-2.0, and LGPL-2.1 with the OCaml
+linking exception (the license of the compiler and of many older libraries). Templates for
+ISC and MIT are provided; copy the text of the others from spdx.org, and the linking
+exception from the `LICENSE` file of the OCaml distribution.
+
+If the project puts a license header in every source file, keep it consistent:
 
 ```ocaml
 (*---------------------------------------------------------------------------
   Copyright (c) {{YEAR}} {{AUTHOR}}. All rights reserved.
-  SPDX-License-Identifier: ISC
+  SPDX-License-Identifier: {{LICENSE}}
  ---------------------------------------------------------------------------*)
 ```
 
@@ -131,7 +122,7 @@ project/
 ├── lib/
 │   ├── dune
 │   ├── foo.ml
-│   └── foo.mli         # Required for every .ml
+│   └── foo.mli         # Interface for every public module
 ├── bin/
 │   ├── dune
 │   └── main.ml
@@ -139,9 +130,7 @@ project/
 │   ├── dune
 │   ├── test.ml
 │   └── test_foo.ml
-├── .github/workflows/  # GitHub Actions
-├── .gitlab-ci.yml      # GitLab CI
-└── .tangled/workflows/ # Tangled CI
+└── CI configuration    # .github/workflows/, .gitlab-ci.yml or .tangled/workflows/
 ```
 
 ## dune-project
@@ -149,45 +138,39 @@ project/
 ```lisp
 (lang dune 3.21)
 (name project_name)
-(source (tangled handle/project_name))   ; or (github user/repo)
-(license ISC)
-(authors "Name <email>")
-(generate_opam_files true)
-
+(source (github user/project_name))
 (license ISC)
 (authors "Name <email@example.com>")
 (maintainers "Name <email@example.com>")
-(source (tangled user.domain/project_name))
+(generate_opam_files true)
 
 (package
  (name project_name)
  (synopsis "Short description")
  (description "Longer description")
  (depends
-  (ocaml (>= 5.2))
+  (ocaml (>= 4.14))
   (alcotest (and :with-test (>= 1.7.0)))))
 ```
 
-**Source options**:
-- `(source (tangled handle/repo))` - Tangled hosting (default for monopam)
-- `(source (github user/repo))` - GitHub hosting
-- `(source (gitlab user/repo))` - GitLab hosting
+**Source options**: `(source (github user/repo))`, `(source (gitlab user/repo))`,
+`(source (bitbucket user/repo))`, `(source (tangled handle/repo))` for tangled.org
+(`(source (tangled user.domain/project-name))` with a domain handle), or `(source (uri ...))`.
+
+**OCaml version**: declare the oldest version the project supports. 4.14 keeps a library
+usable from older switches and js_of_ocaml projects; libraries built on effects (Eio, Miou)
+need 5.0 or later.
 
 **Note**: Don't add `(version ...)` - added at release time.
 
-### Tangled Source Syntax
+## CI Configuration
 
-For projects hosted on tangled.org, use the succinct source stanza:
+`templates/ci-github.yml`, `templates/ci-gitlab.yml` and `templates/ci-tangled.yml` build,
+test and generate the documentation. Test on the oldest supported OCaml version as well as
+the latest. If the project depends on packages from an extra opam repository, add an
+`opam repo add <name> <url>` step before installing dependencies.
 
-```lisp
-(source (tangled user.domain/project-name))
-```
-
-Examples:
-- `(source (tangled anil.recoil.org/ocaml-brotli))`
-- `(source (tangled user.example.org/my-library))`
-
-## Tangled CI Configuration
+### Tangled CI
 
 For projects hosted on tangled.org, create `.tangled/workflows/build.yml`:
 
@@ -227,10 +210,6 @@ steps:
     command: |
       opam init --disable-sandboxing -a -y
 
-  - name: repo
-    command: |
-      opam repo add aoah https://tangled.org/anil.recoil.org/aoah-opam-repo.git
-
   - name: deps
     command: |
       opam install . --confirm-level=unsafe-yes --deps-only
@@ -244,8 +223,6 @@ steps:
       opam install . --confirm-level=unsafe-yes --deps-only --with-test
       opam exec -- dune runtest --verbose
 ```
-
-### Tangled Workflow Syntax
 
 | Field | Description |
 |-------|-------------|

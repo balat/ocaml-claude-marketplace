@@ -9,12 +9,14 @@ description: "Eio concurrency patterns for OCaml applications. Use when Claude n
 
 ### Why Eio
 
-Eio is an effects-based IO library for OCaml 5. Advantages over Lwt/Async:
+Eio is an effects-based IO library for OCaml 5. Compared with Lwt:
 
-- **Direct-style code**: No monads, concurrent code looks like sequential code
-- **Performance**: Real stacks, no heap allocations to simulate continuations
-- **Better backtraces**: Exceptions show proper call traces
-- **Platform optimization**: Generic API with optimized backends (Linux io_uring, POSIX, Windows)
+- **Direct-style code**: no monads, concurrent code reads like sequential code; in exchange,
+  a function that may suspend has an ordinary type, where Lwt marks it with `'a Lwt.t`
+- **Effects instead of heap-allocated continuations**, with backtraces that follow the call stack
+- **Backends**: a generic API with optimized backends (Linux io_uring, POSIX, Windows)
+- **Requirements**: OCaml 5 and native code. Lwt remains the choice for OCaml 4.14, for
+  js_of_ocaml, and for the libraries built on it (see the `lwt` skill)
 
 ### Capability-Based Design
 
@@ -281,10 +283,10 @@ let setup_test f () =
   Eio.Switch.run @@ fun sw ->
   let fs = Eio.Stdenv.fs env in
   let tmp = Eio.Path.(fs / Filename.get_temp_dir_name () / "test-dir") in
-  (try Eio.Path.rmtree tmp with _ -> ());
+  (try Eio.Path.rmtree tmp with Eio.Io _ -> ());
   Eio.Path.mkdirs ~exists_ok:true ~perm:0o755 tmp;
   Fun.protect
-    ~finally:(fun () -> try Eio.Path.rmtree tmp with _ -> ())
+    ~finally:(fun () -> try Eio.Path.rmtree tmp with Eio.Io _ -> ())
     (fun () -> f ~sw tmp)
 
 let test_something = setup_test @@ fun ~sw tmp ->
@@ -494,7 +496,7 @@ Eio.Fiber.both
 
 | Library | Purpose | Notes |
 |---------|---------|-------|
-| Lwt_eio | Run Lwt + Eio together | Gradual migration path |
+| Lwt_eio | Run Lwt libraries inside an Eio program, or Eio code under Lwt | Interoperation in both directions |
 | Async_eio | Run Async + Eio together | Experimental |
 | bytesrw | Streaming byte parsing | Requires copy (Cstruct→bytes) |
 | cohttp-eio | HTTP client/server | Native Eio support |

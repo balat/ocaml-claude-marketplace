@@ -17,10 +17,10 @@ Project name: $ARGUMENTS (defaults to current directory name if not provided)
 Read user configuration from `~/.claude/ocaml-config.json`. If it doesn't exist, prompt the user for:
 - Author name
 - Author email
-- Preferred license (ISC, MIT, Apache-2.0)
+- Preferred license (ISC, MIT, Apache-2.0, BSD-3-Clause, MPL-2.0, LGPL-2.1 with the OCaml linking exception)
 - CI platform (github, tangled, gitlab)
 - Git hosting (github.com/user, tangled.org/@user, gitlab.com/user)
-- OCaml version minimum (default: 5.2.0)
+- OCaml version minimum (4.14 for the widest compatibility; 5.x when the project relies on effects or domains)
 
 Offer to save configuration to `~/.claude/ocaml-config.json` for future use.
 
@@ -46,8 +46,8 @@ Offer to save configuration to `~/.claude/ocaml-config.json` for future use.
 
 1. **lib/dune** - Library stanza
 2. **lib/<project>.ml** - Main module with license header
-3. **lib/<project>.mli** - Interface with documentation, written under the
-   `doc-style` skill, which you should invoke before writing any doc comment
+3. **lib/<project>.mli** - Interface with documentation; ask which documentation voice
+   the project wants (the `doc-style` skill describes the manpage voice)
 
 ### Test Files
 
@@ -59,7 +59,7 @@ Offer to save configuration to `~/.claude/ocaml-config.json` for future use.
 1. Check if directory is empty or confirm overwrite
 2. Read or prompt for configuration
 3. Determine project name from argument or directory
-4. Create all files using templates from the ocaml-project-setup skill
+4. Create all files using templates from the project-setup skill
 5. Run `dune build @check` to verify setup
 6. Report success and suggest next steps
 

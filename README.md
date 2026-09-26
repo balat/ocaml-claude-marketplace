@@ -21,45 +21,14 @@ Then install the OCaml development plugin:
 
 ### ocaml-dev
 
-Comprehensive OCaml development toolkit including:
+Comprehensive OCaml development toolkit: five slash commands (`/init-ocaml`, `/port-to-dune`,
+`/add-rfc`, `/ocaml-npm`, `/tidy`) and thirty auto-invoked skills covering project setup and
+build, code quality and review, documentation, testing and profiling, concurrency (Lwt, Eio,
+effects), libraries (cmdliner, jsont, logs, progress), web and mobile applications with
+Ocsigen, and OxCaml, plus ocamllsp integration.
 
-**Slash Commands:**
-- `/init-ocaml [name]` - Initialize a new OCaml project with dune, opam, CI, and standard files
-- `/port-to-dune` - Migrate ocamlbuild/topkg projects to dune
-- `/add-rfc <number>` - Fetch an IETF RFC and integrate with ocamldoc citations
-- `/ocaml-npm` - Set up npm publishing for js_of_ocaml/wasm_of_ocaml projects
-- `/tidy` - Refactor OCaml code to be more idiomatic
-
-**Skills (auto-invoked):**
-
-*Project & Build:*
-- Project setup and metadata standards
-- Build system migration (ocamlbuild/topkg to dune)
-- NPM/browser publishing workflow
-- RFC integration and documentation
-
-*Code Quality:*
-- Code style and refactoring patterns
-- Tutorial creation with MDX
-
-*OCaml 5 & Concurrency:*
-- **eio** - Eio concurrency patterns, switches, fibers, mocks
-- **effects** - Algebraic effects design (effects vs exceptions, layered design)
-
-*Library-Specific:*
-- **cmdliner** - CLI design following Daniel Bünzli's principles
-- **jsont** - Type-safe JSON encoding/decoding with jsont
-
-*Testing & Profiling:*
-- Testing strategies (including Eio mocks)
-- **fuzz** - Fuzz testing with Crowbar (roundtrips, crash-safety, boundaries)
-- **memtrace** - Allocation profiling and hotspot analysis
-
-*OxCaml Extensions:*
-- Unboxed types, stack allocation, SIMD, zero-alloc annotations
-
-**LSP Integration:**
-- ocamllsp for `.ml`, `.mli`, `.mly`, `.mll` files
+The full list, with a description of each skill, is in
+[plugins/ocaml-dev/README.md](plugins/ocaml-dev/README.md).
 
 ## User Configuration
 

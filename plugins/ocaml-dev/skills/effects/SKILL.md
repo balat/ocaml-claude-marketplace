@@ -1,6 +1,6 @@
 ---
 name: effects
-description: "OCaml 5 algebraic effects design patterns. Use when Claude needs to: (1) Design APIs that interact with effect-based schedulers, (2) Decide between effects vs exceptions, (3) Integrate libraries with Eio or affect, (4) Handle suspension vs error cases in streaming code, (5) Understand the layered effect design principle"
+description: "OCaml 5 algebraic effects design patterns. Use when Claude needs to: (1) Design APIs that interact with effect-based schedulers, (2) Decide between effects vs exceptions, (3) Integrate libraries with effect-based schedulers (Eio, Miou, Picos, affect) or run them under Lwt, (4) Handle suspension vs error cases in streaming code, (5) Understand the layered effect design principle"
 ---
 
 # OCaml 5 Effects Design
@@ -38,6 +38,9 @@ Effect handler (Eio scheduler, affect runtime)
 
 ## Effect Libraries
 
+Effects are the mechanism; several schedulers build on it. Follow the one the project
+uses, and design libraries so that they work under any of them (see Layered Design).
+
 ### Eio
 
 Effects are internal to the scheduler. User code looks synchronous:
@@ -64,6 +67,24 @@ type 'a block = {
   return : handle -> 'a        (* extract result *)
 }
 ```
+
+### Miou, Picos, Domainslib, Moonpool
+
+- **Miou** (Robur): a small effects-based scheduler for systems programming; fibers and
+  domains with a minimal API.
+- **Picos**: an interoperability framework: a library written against Picos runs under
+  any Picos-compatible scheduler.
+- **Domainslib** and **Moonpool**: task pools for CPU-bound parallelism on domains,
+  with or without effects.
+
+### Lwt
+
+Lwt predates effects and stays monadic: a suspension is a pending promise, not a performed
+effect, so the type of a function (`'a Lwt.t`) says whether it may suspend, which effects do
+not express in types. It runs on OCaml 4.14 and in the browser. A library written in the
+layered style below works under Lwt too: the pull function returns a promise, or the
+Lwt program hosts an Eio loop with `Lwt_eio` (`Lwt_eio.run_lwt`, `Lwt_eio.run_eio`). See
+the `lwt` skill.
 
 ### bytesrw
 
@@ -110,24 +131,38 @@ parse (Binary.Reader.of_reader reader)
 
 **Don't**: Define `Await` effect in protocol parsers
 ```ocaml
-(* WRONG - parser shouldn't know about suspension *)
+(* Wrong: the parser should not know about suspension *)
 let get_byte t =
   if no_data then perform Await; ...
 ```
 
 **Do**: Let the source handle suspension
 ```ocaml
-(* RIGHT - parser just reads, source handles waiting *)
+(* Right: the parser just reads, the source handles waiting *)
 let get_byte t =
   match pull_next_slice t with  (* may perform effects *)
   | Some slice -> ...
   | None -> raise End_of_file   (* true EOF *)
 ```
 
+## Handlers and Caveats
+
+- `Effect.Deep` handlers resume a continuation once; `Effect.Shallow` handlers give
+  back control after each resumption, which suits schedulers that reinstall a handler
+  at every step. Most application code needs neither: the scheduler owns the handlers.
+- Continuations do not cross domains, and an unhandled effect raises
+  `Effect.Unhandled`: a library that performs effects must document which handler it
+  expects to run under.
+- Since OCaml 5.3, `match ... with` accepts `effect` patterns, so a handler can be written
+  without `Effect.Deep.match_with`; effects are still declared with `type _ Effect.t += ...`.
+
 ## References
 
 - Eio: https://github.com/ocaml-multicore/eio
 - affect: https://github.com/dbuenzli/affect
+- Miou: https://github.com/robur-coop/miou
+- Picos: https://github.com/ocaml-multicore/picos
+- Lwt_eio: https://github.com/ocaml-multicore/lwt_eio
 - bytesrw: https://erratique.ch/software/bytesrw
 - OCaml effects tutorial: https://github.com/ocaml-multicore/ocaml-effects-tutorial
 - Retrofitting Effect Handlers onto OCaml (PLDI 2021): https://dl.acm.org/doi/10.1145/3453483.3454039

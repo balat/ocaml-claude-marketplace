@@ -57,8 +57,8 @@ For every `.mli`, check the following.
 
 **API quality**
 - Unlabelled booleans and unlabelled same-typed adjacent arguments.
-- `find_*` returning `option` and `get_*` returning a value directly, or the
-  convention broken.
+- Lookups that may fail: one convention across the library (Stdlib `find`/`find_opt`,
+  Base `find`/`find_exn`, or `find_*`/`get_*`), reported when broken.
 - Error handling. Recoverable failure is a `result`. An exception in a public
   signature must be documented and justified.
 - Values exported only because a test or a sibling module needs them. These
@@ -67,10 +67,10 @@ For every `.mli`, check the following.
   should not have to depend on.
 
 **Documentation**
-- Judge every doc comment against the `doc-style` skill. That skill is the
-  standard, so load it before reviewing prose.
-- Missing synopsis, missing value docs, `[f x y] is` violations, colons and
-  em dashes, prose about implementation, banned words.
+- Judge doc comments against the project's own documentation conventions. If the project
+  uses the manpage voice, load the `doc-style` skill and apply it.
+- Missing synopsis, missing value docs, prose about the implementation, optional
+  arguments without their default, comments that restate the code.
 
 ### Deliverable
 
@@ -81,7 +81,7 @@ Produce an interface report with, in order:
 3. A restructuring plan, if one is warranted. Say which modules split, merge,
    move library, or gain an `.mli`, and what the API break costs.
 4. A redocumentation plan, if one is warranted. List the files whose
-   documentation is to be rewritten under `doc-style`.
+   documentation is to be rewritten, and in which voice.
 
 Present this and **stop**. Restructuring is the user's call. Do not edit an
 interface, and do not start Phase 2, until the user has responded.

@@ -71,7 +71,7 @@ Search the codebase for:
 Provide:
 1. Confirmation of RFC download
 2. Summary of RFC contents (title, sections)
-3. OCamldoc citation templates, worded under the `doc-style` skill
+3. OCamldoc citation templates, worded in the project's documentation voice
 4. Suggestions for where to add citations in existing code
 
 ## Example Usage

@@ -1,12 +1,17 @@
 ---
 name: doc-style
-description: "OCaml comment and ocamldoc writing style, in the voice of a POSIX manual page. Use whenever writing, rewording, reviewing or deleting any OCaml comment or documentation. Triggers on ocamldoc, odoc, doc comments, (** ... *), .mli documentation, .mld pages, documenting a function, type or module, and on any request to add, tidy, rewrite or strip OCaml comments."
+description: "OCaml comment and ocamldoc writing style in the voice of a POSIX manual page, the convention of many opam libraries: [f x y] is ..., full sentences, nothing about the implementation. Use when writing, rewording or reviewing doc comments in a project that follows that voice, or when asked for it; not a standard for projects that document in the Stdlib style with imperative sentences and @param tags."
 ---
 
 # OCaml Comment and Documentation Style
 
 Write ocamldoc the way a POSIX manual page is written. State what a thing is
 and what it does, in full sentences, and stop.
+
+This is one documentation voice, shared by many opam libraries. The Stdlib and the OCaml
+manual use another: an imperative sentence (`Return the length of ...`) with `@param`,
+`@raise` and `@since` tags. Apply this skill to projects that follow the manpage voice or
+ask for it; do not convert a project from one voice to the other on your own.
 
 Implementations carry no comments at all unless the code cannot speak for
 itself.
