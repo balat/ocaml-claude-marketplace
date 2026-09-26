@@ -67,6 +67,9 @@ Return with `Lwt.return x`, or the allocation-free constants `Lwt.return_unit`,
 - Inside a callback (the body of a `let%lwt`, of `Lwt.catch`, of `Lwt.async`), `raise e`
   rejects the promise. `Lwt.fail e` builds a rejected promise where an expression of type
   `_ Lwt.t` is needed outside a callback.
+- `Lwt.reraise e` is `raise e` that keeps the backtrace: it raises, it does not build a
+  rejected promise like `Lwt.fail e`, so whether it becomes a rejection depends on who
+  catches it.
 - `try ... with` around Lwt code only catches exceptions raised before the first pending
   promise; anything raised later in the chain escapes it. Use `Lwt.catch` (or `try%lwt`):
 
