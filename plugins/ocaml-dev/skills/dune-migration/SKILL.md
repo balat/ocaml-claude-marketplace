@@ -79,7 +79,7 @@ If the original code triggers warnings:
  (flags (:standard -w -27)))
 ```
 
-Common warnings to suppress in vendored code:
+Silence warnings only in vendored third-party code, and as a temporary measure while porting; fix them in code you maintain:
 - `-w -27` - unused variable
 
 ### 6. Create Test dune File
@@ -161,7 +161,7 @@ Files to delete:
 Use `(optional)` on the library stanza.
 
 ### Unused variable warnings
-Add `(flags (:standard -w -27))`.
+Fix the unused variables; `(flags (:standard -w -27))` is acceptable only for vendored code.
 
 ### Module in wrong library
 Use `(modules ...)` to explicitly list modules.

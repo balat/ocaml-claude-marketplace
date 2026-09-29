@@ -9,8 +9,8 @@ description: "Fixing odoc documentation warnings and errors. Use when running du
 
 Use this skill when fixing odoc documentation warnings, typically from `dune build @doc`.
 
-This skill covers odoc mechanics only. Load the `doc-style` skill as well
-whenever you write or reword the prose of a doc comment.
+This skill covers odoc mechanics only. For the prose itself, follow the project's
+documentation voice; the `doc-style` skill describes the manpage voice.
 
 **Prerequisites:** This skill covers odoc v3 syntax which is not yet in released versions of dune or odoc. You need:
 - dune pinned to https://github.com/jonludlam/dune/tree/odoc-v3-rules-3.21

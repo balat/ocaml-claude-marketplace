@@ -12,11 +12,11 @@ The `logs` library provides structured logging with per-module sources.
 Every module that logs should create its own source:
 
 ```ocaml
-let log_src = Logs.Src.create "project.module_name"
+let log_src = Logs.Src.create "project.module_name"  (* dot- or colon-separated, as the project does *)
 module Log = (val Logs.src_log log_src : Logs.LOG)
 ```
 
-This is the standard idiom. Do NOT attempt to abstract or deduplicate this boilerplate.
+This is the standard idiom; repeat the two lines in every module rather than abstracting them.
 
 ## Log Levels
 
@@ -46,9 +46,9 @@ Log.info (fun m ->
       ~tags:(Logs.Tag.add "channel_id" channel Logs.Tag.empty))
 ```
 
-## Reporter Setup (bin/)
+## Reporter Setup
 
-In CLI applications, set up the reporter in `bin/common.ml`:
+Set up the reporter once, at program start. With cmdliner, `Logs_cli` and `Fmt_cli` provide the terms:
 
 ```ocaml
 let setup_log style_renderer level =
@@ -63,3 +63,6 @@ let setup_log =
         $ Fmt_cli.style_renderer ()
         $ Logs_cli.level ())
 ```
+
+For Lwt programs, `Logs_lwt` offers the same functions returning promises, so that a
+reporter can perform asynchronous I/O. In the browser, `Logs_browser` reports to the console.

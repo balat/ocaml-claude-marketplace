@@ -1,6 +1,6 @@
 ---
 name: npm-publishing
-description: Publishing OCaml to npm via js_of_ocaml and wasm_of_ocaml. Use when discussing browser targets, JavaScript compilation, WASM output, npm packages, or the two-branch workflow.
+description: Publishing OCaml libraries to npm via js_of_ocaml and wasm_of_ocaml. Use when preparing an npm package from OCaml code, setting up an npm release workflow or release branch, or writing package.json for js_of_ocaml or wasm_of_ocaml output. Not for general js_of_ocaml compilation questions.
 ---
 
 # OCaml to NPM Publishing
@@ -33,7 +33,7 @@ In `lib/js/dune`:
 (library
  (name mylib_js)
  (public_name mylib-js)
- (libraries mylib brr)
+ (libraries mylib brr)   ; or js_of_ocaml, for the Js_of_ocaml bindings
  (modes byte)
  (modules mylib_js))
 
@@ -126,7 +126,7 @@ See `templates/` for:
 ```
 
 Key points:
-- Use `"browser"` not `"main"` (js_of_ocaml is browser-only)
+- Use `"browser"` for a package meant for browsers; js_of_ocaml output also runs under Node, in which case set `"main"`
 - Point repository URL to `#npm` branch
 - Include WASM assets directory
 
