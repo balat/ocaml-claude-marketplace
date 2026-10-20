@@ -1,6 +1,6 @@
 ---
 name: ocsigen-start
-description: "Building on the Ocsigen Start template and library: users, groups and sessions, Os.Current_user and authorization checks (allow, deny, predicate), session-start client caches, Os.Notif server push, Os.Msg, Ocsigen Toolkit widgets (Ot.Spinner, Ot.Popup, Ot.Drawer, Ot.Carousel, Ot.Nodeready), PG'OCaml [%pgsql] queries and idempotent schema updates, ocsigen-i18n, SASS with BEM and ot-/os- prefixes, Makefile targets (make test.byte, db-schema, db-update, css). Use in a project generated from the Ocsigen Start template or when code uses Os., Ot., [%pgsql] or i18n."
+description: "Building on the Ocsigen Start template and library: users, groups and sessions, Os.Current_user and authorization checks (allow, deny, predicate), session-start client caches, Os.Notif server push, Os.Msg, Ocsigen Toolkit widgets (Ot.Spinner, Ot.Popup, Ot.Drawer, Ot.Carousel, Ot.Nodeready), PG'OCaml [%pgsql] queries and idempotent schema updates, ocsigen-i18n, SASS with BEM and ot-/os- prefixes, Makefile targets (make test.byte, db-update, css). Use in a project generated from the Ocsigen Start template or when code uses Os., Ot., [%pgsql] or i18n."
 ---
 
 # Ocsigen Start applications
@@ -18,8 +18,9 @@ releases use `Os_session`, `Ot_spinner` (mapping in the `eliom-client-server` sk
 `myapp.eliom` (the `App` module), `myapp_services`, `myapp_handlers`, `myapp_page` (page
 wrappers), `myapp_container` (layout), `myapp_drawer`, `myapp_config`, `myapp_language`,
 `myapp_settings`, `myapp_mobile`, `*_db.ml` (database access), `sass/`, `static/`,
-`assets/` (images, translation files), `mobile/` (Cordova), `myapp.sql` (Ocsigen Start
-schema), `Makefile.options` (project settings, committed) and `Makefile.local` (machine
+`assets/` (images, translation files), `mobile/` (Cordova), `ocsigen_start.sql` (tables of
+Ocsigen Start, from the template), `myapp.sql` (schema of the application),
+`Makefile.options` (project settings, committed) and `Makefile.local` (machine
 settings, kept out of git). Feature files follow the layout described in
 `eliom-architecture`.
 
@@ -89,9 +90,11 @@ toolkit inputs.
 - Wrap queries in `full_transaction_block` (from `Os.Db`, which the template's db files open).
 - Never modify the `ocsigen_start.*` tables: they must stay upgradable. Add tables and
   reference `ocsigen_start.users.userid`.
-- Recommended schema management, which fits the build-time checking of `[%pgsql]`: one
-  idempotent `update.sql` replayed on every database.
-  `references/database.md` gives the layout, the guards and the Makefile targets.
+- Schema files are replayable, which fits the build-time checking of `[%pgsql]`:
+  `ocsigen_start.sql` (from the template, never edited) creates or updates the tables of
+  Ocsigen Start, `myapp.sql` holds the schema of the application, and `make db-update`
+  applies both, on a new database as on an existing one. `references/database.md` gives
+  the convention, the Makefile targets, and the case of projects generated before 9.0.
 
 ## Internationalisation
 
@@ -118,8 +121,8 @@ toolkit inputs.
 - `make test.byte` (or `make test.opt`) builds both tiers and runs the server locally with
   the client program just built. Building with `make opt` and then launching the server by
   hand easily serves a stale client program.
-- `make css` compiles SASS; `make db-init`, `db-create`, `db-schema` create a local
-  PostgreSQL instance and load the schema (`Makefile.db`); `make mobile-all` builds the
+- `make css` compiles SASS; `make db-init`, `db-create`, `db-update` create a local
+  PostgreSQL instance and its schema (`Makefile.db`); `make mobile-all` builds the
   Cordova apps.
 - Machine-specific settings (ports, paths, credentials) go in `Makefile.local`, never in
   `Makefile.options`.
