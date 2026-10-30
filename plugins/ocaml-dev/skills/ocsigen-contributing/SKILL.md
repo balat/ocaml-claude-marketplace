@@ -1,6 +1,6 @@
 ---
 name: ocsigen-contributing
-description: "Contributing to the Ocsigen framework repositories (Eliom, Ocsigen Server, Ocsigen Start, Ocsigen Toolkit, Js_of_ocaml, TyXML, ocsipersist, ocsigen-i18n): where generic code belongs, keeping os_template and eliom_template_exe/lib in sync, logging with Logs, the documentation stack (odoc in .mli/.eliomi, manual and website in Wodoc, tutorial, blog with OCaml Planet extract). Use when modifying an Ocsigen project rather than an application, or when an application needs an upstream change."
+description: "Contributing to the Ocsigen framework repositories (Eliom, Ocsigen Server, Ocsigen Start, Ocsigen Toolkit, Js_of_ocaml, TyXML, ocsipersist, ocsigen-i18n): where generic code belongs, keeping the templates (os_template, eliom_template_exe) in sync, logging with Logs, the documentation stack (odoc in .mli/.eliomi, manual and website in Wodoc, tutorial, blog with OCaml Planet extract). Use when modifying an Ocsigen project rather than an application, or when an application needs an upstream change."
 ---
 
 # Contributing to Ocsigen
@@ -30,10 +30,12 @@ development against that switch.
 ## Templates
 
 `eliom-distillery`, Eliom's project generator, ships templates that are generated from
-dedicated repositories: `os_template` (template `os`, an Ocsigen Start application),
-`eliom_template_exe` (template `app.exe`) and `eliom_template_lib` (template `app.lib`).
-Edit the template repository first, then regenerate: in `os_template`, the `rename` script
-produces the flattened `dest/` tree that Ocsigen Start installs as its distillery template.
+dedicated repositories: `os_template` (template `os`, an Ocsigen Start application) and
+`eliom_template_exe` (template `app` of Eliom, run as a standalone executable or loaded by
+Ocsigen Server). Edit the template repository first, then regenerate the flattened copy:
+`script/update_template.sh` in Ocsigen Start writes `template.distillery/`, and
+`script/update_templates.sh` in Eliom writes `pkg/distillery/templates/app/`. Both take an
+optional source, such as a local clone, to test a branch before pushing it.
 Any change to Eliom, Ocsigen Start or Ocsigen Toolkit that affects application code
 (renamed module, changed signature, new build rule) updates the templates in the same
 change.
