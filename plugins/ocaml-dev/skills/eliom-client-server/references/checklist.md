@@ -11,7 +11,7 @@ section of `SKILL.md` that explains it.
 - [ ] No `int` that may exceed 2^30 reaches client code: ids, timestamps, amounts are `Int64` or strings. (Types)
 - [ ] Strings from URLs, RPCs or caches are decoded to a variant once, at the boundary. (Types)
 - [ ] Effects on the freshly rendered page run inside `Eliom.Client.onload`. (Client values)
-- [ ] No `~%service` or `~%rpc_stub` inside a `[%client]` in a handler; the module-level client alias is used. (Injections)
+- [ ] No `~%rpc_stub` and no `~%` on a value holding functions; services use their module-level client alias rather than a new `~%`. (Injections)
 - [ ] Only data is injected; values that must update on the client use `Eliom.Shared.React`. (Injections)
 - [ ] Each RPC call from client code is under `Lwt.catch`, with a user-visible message and a log line. (Events)
 - [ ] Repeated events use the `s`-suffixed `Lwt_js_events` loops, and the loop body catches its own exceptions. (Events)

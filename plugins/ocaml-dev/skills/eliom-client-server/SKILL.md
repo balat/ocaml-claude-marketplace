@@ -76,22 +76,24 @@ it to the client.
   cannot cross.
 - An injected value is a snapshot. For values that must keep updating on the client, use
   `Eliom.Shared.React` signals.
-- Inject services and RPC stubs exactly once, at module load:
+- Inject each service once, at module load, and use the client-side name in client code:
 
   ```ocaml
   let%server foo_service = Eliom.Service.create ...
   let%client foo_service = ~%foo_service
   ```
 
-  This runs before any `App.register ~service:foo_service ...` (`App` being the
-  application's `Eliom.Registration.App` module). Registration attaches a closure to the
-  server-side service object, which then cannot be serialised. A later `~%foo_service`
-  inside a `[%client]` block in a page handler makes the server raise
-  `Failure "cannot wrap functional values"` while wrapping the request data. Look for that
-  line in the server log: the page may still be served with the injection dropped, and the
-  client-side effect never fires. Inside client code, use the module-level client identifier
-  (`Foo_services.foo_service`), never `~%` again. The same holds for `let%rpc` stubs and any
-  top-level value that gains a closure after server-side wiring.
+  A service is data and can be injected again later, even after registration, but each
+  `~%foo_service` in a page sends another copy; the module-level client identifier
+  (`Foo_services.foo_service`) needs none.
+- Never inject an RPC stub. `let%rpc f` defines a function on each side: inside
+  `[%client]`, call the client one directly (`f ()`). `~%f` captures the server-side
+  function, and so does `~%` on any value holding functions: a
+  `Eliom.Content.Html.Custom_data.t`, a record of callbacks, a closure. The server then
+  raises `Failure "cannot wrap functional values"` while sending the page, and the request
+  fails (error 500, or the error page of the application if its handler catches the
+  exception). For a value defined with `let%shared`, use its client-side version, without
+  `~%`.
 
 ## Client-side events and errors
 
