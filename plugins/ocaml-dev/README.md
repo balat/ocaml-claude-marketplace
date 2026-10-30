@@ -20,37 +20,59 @@ Comprehensive OCaml development toolkit for Claude Code.
 
 | Skill | Description |
 |-------|-------------|
-| ocaml-project-setup | Project structure, dune-project, .mli files, CI configuration |
-| ocaml-dune-migration | Migrating from ocamlbuild/topkg to dune (_tags, .mllib, pkg.ml) |
-| ocaml-npm-publishing | Publishing to npm via js_of_ocaml and wasm_of_ocaml |
+| project-setup | Project structure, dune-project, .mli files, CI configuration |
+| dune-migration | Migrating from ocamlbuild/topkg to dune (_tags, .mllib, pkg.ml) |
+| npm-publishing | Publishing to npm via js_of_ocaml and wasm_of_ocaml |
+| rfc-integration | Working with IETF RFCs, OCamldoc citations |
 
 #### Code Quality
 
 | Skill | Description |
 |-------|-------------|
-| ocaml-code-style | Refactoring patterns, naming conventions, module hygiene |
+| ocaml | General OCaml development guidance: interfaces, errors, logging, naming |
+| code-style | Refactoring patterns, naming conventions, module hygiene |
+| result | Result type patterns and Result.Syntax |
 | doc-style | Comment and ocamldoc style in the voice of a POSIX manpage |
 | review-ocaml | Two-phase project review: interfaces first, then per-module subagents |
-| ocaml-testing | Testing with Alcotest, Eio mocks, cram tests |
+| testing | Alcotest, ppx_expect, QCheck, cram; Lwt and Eio tests |
 | fuzz | Fuzz testing with Crowbar for parsers and encoders |
+| security | Security hardening: integer, buffer and DoS vulnerability classes, CVE regression tests |
 
 #### Documentation
 
 | Skill | Description |
 |-------|-------------|
 | ocaml-docs | Fixing odoc warnings, reference syntax, cross-package refs |
-| doc-style | What the prose should say: manpage voice, `[f x y] is ...`, no filler |
-| ocaml-tutorials | Creating .mld tutorials with MDX executable examples |
-| ocaml-rfc-integration | Working with IETF RFCs, OCamldoc citations |
+| tutorials | Creating .mld tutorials with MDX executable examples |
+
+#### Concurrency
+
+| Skill | Description |
+|-------|-------------|
+| lwt | Lwt: promises and binding styles, errors, racing and joining, cancellation, blocking calls, browser event loops |
+| eio | Eio: fibers, switches, cancellation, networking with cohttp-eio, mocks, bytesrw streaming |
+| effects | OCaml 5 effects: effects versus exceptions, layered design, schedulers, Lwt interoperation |
 
 #### Libraries & Frameworks
 
 | Skill | Description |
 |-------|-------------|
-| eio | Eio concurrency: fibers, switches, mocks, cohttp-eio, bytesrw |
-| cmdliner | CLI design with cmdliner following Bünzli's principles |
+| cmdliner | CLI design principles and their expression with cmdliner |
 | jsont | Type-safe JSON encoding/decoding with jsont |
-| effects | OCaml 5 algebraic effects design patterns |
+| logs | Logging with the Logs library: sources, levels, reporters |
+| progress | Terminal progress bars with the progress library |
+
+#### Web with Ocsigen
+
+| Skill | Description |
+|-------|-------------|
+| ocsigen-overview | What Ocsigen is, what it checks at compile time, when to choose it |
+| eliom-server-side | Server-side sites with Eliom and Ocsigen Server: services, typed parameters, links and forms, sessions, continuations |
+| eliom-architecture | Multi-tier Eliom applications: tiers, rendering model, registration on both tiers, RPCs, state across tiers |
+| eliom-client-server | The client/server boundary: sections, client values and their timing, injections, integer sizes, RPC errors |
+| eliom-typed-markup | HTML and SVG with TyXML: F versus D, Manip, reactive and global nodes, no string markup |
+| ocsigen-start | Ocsigen Start applications: users, sessions, authorization, notifications, Toolkit widgets, PG'OCaml, i18n |
+| ocsigen-contributing | Contributing to the Ocsigen repositories: upstreaming, templates, logging, documentation stack |
 
 #### Performance & Advanced
 
@@ -62,10 +84,11 @@ Comprehensive OCaml development toolkit for Claude Code.
 ### LSP Integration
 
 Includes ocamllsp configuration for enhanced code intelligence:
-- `.ml` - OCaml source
-- `.mli` - OCaml interface
-- `.mly` - Menhir grammar
-- `.mll` - OCamllex lexer
+- `.ml`, `.mli` - OCaml source and interface
+- `.mly`, `.mll` - Menhir grammar, OCamllex lexer
+- `.mlx` - OCaml with JSX-like syntax
+- `.eliom`, `.eliomi` - Eliom (Ocsigen) source and interface
+- `.re`, `.rei` - Reason source and interface
 
 ## Configuration
 
@@ -97,7 +120,7 @@ User settings are read from `~/.claude/ocaml-config.json`:
 
 | Field | Description | Values |
 |-------|-------------|--------|
-| `license` | Default license for new projects | `ISC`, `MIT`, `Apache-2.0` |
+| `license` | Default license for new projects | `ISC`, `MIT`, `Apache-2.0`, `BSD-3-Clause`, `MPL-2.0`, `LGPL-2.1-or-later WITH OCaml-LGPL-linking-exception` |
 | `ci_platform` | CI system for new projects | `github`, `tangled`, `gitlab` |
 | `git_hosting.type` | Git hosting provider | `github`, `tangled`, `gitlab` |
 | `ocaml_version` | Minimum OCaml version | e.g., `5.2.0` |
@@ -169,7 +192,7 @@ Templates are in `skills/*/templates/`:
 - CI configurations (GitHub, Tangled, GitLab)
 - dune-project and dune file templates
 - License files (ISC, MIT)
-- Test templates (basic, Eio mock)
+- Test templates (basic, Lwt, Eio mock)
 - npm publishing templates
 
 ## License

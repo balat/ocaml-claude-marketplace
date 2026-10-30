@@ -1,11 +1,11 @@
 ---
 name: result
-description: "OCaml Result type patterns using OCaml 5.x stdlib. Use when Claude needs to: (1) Handle errors with Result types, (2) Chain Result operations with let*, (3) Extract values from Ok/Error, (4) Refactor code using local let* bindings to use Result.Syntax"
+description: "OCaml Result type patterns with the standard library (Result.Syntax since OCaml 5.4). Use when Claude needs to: (1) Handle errors with Result types, (2) Chain Result operations with let*, (3) Extract values from Ok/Error, (4) Refactor code using local let* bindings to use Result.Syntax"
 ---
 
 # OCaml Result Patterns
 
-OCaml 5.x provides `Result.Syntax` for monadic chaining and `Result.get_ok`/`Result.get_error` for extraction.
+OCaml 5.4 and later provide `Result.Syntax` for monadic chaining; `Result.get_ok` and `Result.get_error` extract values (since 4.08).
 
 ## Result.Syntax
 
@@ -21,7 +21,7 @@ let process request =
   execute req
 ```
 
-**DO NOT** define local `let ( let* ) = Result.bind`. Use `open Result.Syntax` instead.
+On OCaml 5.4 and later, `open Result.Syntax` replaces a local `let ( let* ) = Result.bind`. On earlier versions, define the operators once in a small `Result_syntax` module and open it, rather than redefining them in every file.
 
 ## Extracting Values
 

@@ -344,4 +344,4 @@ Before releasing any parser, encoder, or protocol handler:
 
 - `references/vulnerability-classes.md` - Detailed patterns for each vulnerability class
 - **fuzz** skill - Comprehensive fuzz testing patterns
-- **ocaml-testing** skill - Unit test organization
+- **testing** skill - Unit test organization

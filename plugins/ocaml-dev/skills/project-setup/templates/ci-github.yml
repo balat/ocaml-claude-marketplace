@@ -15,7 +15,8 @@ jobs:
           - ubuntu-latest
           - macos-latest
         ocaml-compiler:
-          - "{{OCAML_VERSION}}"
+          - "{{OCAML_VERSION}}"   # oldest supported version
+          - "5.3"                 # a recent release
 
     runs-on: ${{ matrix.os }}
 

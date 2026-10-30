@@ -14,8 +14,8 @@ Optional file or directory path: $ARGUMENTS (defaults to current directory)
 
 ## Before You Start
 
-Invoke the `doc-style` skill. Comments and documentation are part of tidying,
-and that skill is the standard for both.
+Comments and documentation are part of tidying: follow the project's documentation voice,
+and invoke the `doc-style` skill if the project uses the manpage voice.
 
 ## Analysis Categories
 
@@ -112,8 +112,8 @@ match x with
 - Colons and em dashes joining clauses, and filler such as `This function`,
   `Note that`, `simply`, `helper for`
 
-**Transform:** delete the first three outright. Rewrite the rest under the
-`doc-style` skill.
+**Transform:** delete the first three outright. Rewrite the rest in the project's
+documentation voice.
 
 ### 7. Modern OCaml Patterns
 

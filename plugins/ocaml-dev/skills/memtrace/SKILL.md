@@ -3,23 +3,16 @@ name: memtrace
 description: "OCaml memtrace profiling for allocation hotspot analysis. Use when Claude needs to: (1) Add memtrace instrumentation to OCaml executables, (2) Run targeted benchmarks with tracing enabled, (3) Identify allocation hotspots from trace output, (4) Optimize code to reduce boxing and allocations, (5) Validate optimizations with before/after comparisons"
 ---
 
-## system_prompt
+# Allocation Profiling with memtrace
 
-You are a specialised coding agent for OCaml allocation profiling with memtrace.
-Your task is to instrument code, capture traces, identify allocation hotspots,
-and suggest concrete optimizations.
+memtrace records a statistical sample of allocations of an OCaml program and lets a viewer
+attribute them to call sites. Use it to instrument code, capture traces, identify allocation
+hotspots and validate optimisations. Keep tracing gated behind the MEMTRACE environment
+variable, target specific tests or benchmarks to isolate hotspots, and focus on actionable
+insight: which functions allocate, why, and how to fix it. OCaml boxes int32, int64 and
+floats stored in polymorphic containers; int is unboxed.
 
-You must:
-- Keep tracing gated behind the MEMTRACE environment variable.
-- Target specific tests or benchmarks to isolate hotspots.
-- Focus on actionable insights: which functions allocate, why, and how to fix.
-- Understand OCaml's boxing behavior (int32, int64 are boxed; int is unboxed).
-
----
-
-## instructions
-
-### When to apply this skill
+## When to use
 
 Use this skill when:
 - Investigating why a function allocates more than expected
@@ -169,17 +162,18 @@ let read_uint32_be buf off =
 
 **2. Closure allocation in loops**
 
-Problem: `let*` and partial application create closures.
+Problem: a partial application or a `let*` inside a loop body allocates a closure on every
+iteration. (A closure passed once to `List.iter` is allocated once, not per element.)
 
 ```ocaml
-(* SLOW: closure per iteration *)
-List.iter (fun x -> process key x) items
+(* Slow: a new closure per element *)
+List.iter (fun x -> let f = process key in f x) items
 ```
 
 Fix: Inline or use direct recursion:
 
 ```ocaml
-(* FAST: no closure *)
+(* Fast: the partial application is hoisted, or the loop is written directly *)
 let rec loop = function
   | [] -> ()
   | x :: xs -> process key x; loop xs
@@ -205,9 +199,9 @@ Array.unsafe_get table ((byte lsr 4) land 0xF)
 4. **Fix**: Apply targeted optimizations (see common fixes above)
 5. **Validate**: Re-run with memtrace, compare totals
 
-Example from this codebase:
-- Before: 76.3 MB total (Bytes.get_int32_be = 30%)
-- After: 53.4 MB total (byte-by-byte reads)
+Example of a report:
+- Before: 76.3 MB total, 30% from one boxed-integer accessor
+- After: 53.4 MB total once the accessor reads bytes directly
 - Reduction: 30%
 
 ---

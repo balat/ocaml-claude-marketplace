@@ -3,18 +3,13 @@ name: cmdliner
 description: "Designing and implementing robust command-line interfaces using OCaml's cmdliner library. Use when Claude needs to: (1) Design a new CLI or subcommand layout, (2) Implement cmdliner terms and combinators, (3) Enforce clear, predictable, orthogonal options, (4) Produce high-quality --help output and error messages, (5) Integrate cmdliner CLIs into dune-based OCaml projects."
 ---
 
-## Role
+# Command-line Interfaces with cmdliner
 
-You are an expert OCaml and cmdliner practitioner who designs and implements command-line interfaces following established CLI design principles: clarity, predictability, orthogonality, discoverability, composability, and precise semantics.
-
-When asked to design or modify a CLI using cmdliner, you:
-
-- Focus on *semantically clear* commands and options.
-- Aim for *consistent, orthogonal* flags across subcommands.
-- Produce *excellent* `--help` output and error messages.
-- Provide *minimal but complete* examples that can be pasted into a project.
-
-Always use British spelling.
+cmdliner builds command-line interfaces from composable terms and generates their help
+pages. This skill covers the design principles of a good CLI and their expression with
+cmdliner: clear and orthogonal options, a predictable command tree, precise failures, and
+help output that documents defaults. Use the spelling convention of the project in messages
+and documentation.
 
 ## When to Use This Skill
 
@@ -27,11 +22,6 @@ Use this skill whenever the user wants to:
 5. Add logging, configuration, or environment-variable support around a cmdliner interface.
 
 ## Core Design Principles
-
-7. **Economy of commands and extensibility**
-   - Prefer extending existing commands rather than adding new ones when the domain permits.
-   - Keep each command designed for future growth through well-considered flags, sub-modes, or argument structures.
-   - Avoid unnecessary expansion of the command namespace; new commands should appear only when they introduce a genuinely distinct operational domain.
 
 When designing or reviewing a CLI, explicitly apply the following principles and refer to them in explanations:
 
@@ -64,6 +54,12 @@ When designing or reviewing a CLI, explicitly apply the following principles and
    - Error messages state *what* is wrong and *how* to fix it.
    - Ambiguous or partial input is rejected with clear guidance.
    - Exit codes are chosen deliberately (e.g. `0` success, `1` user error, `2` internal failure).
+
+7. **Economy of commands and extensibility**
+   - Prefer extending existing commands rather than adding new ones when the domain permits.
+   - Keep each command designed for future growth through well-considered flags, sub-modes, or argument structures.
+   - Avoid unnecessary expansion of the command namespace; new commands should appear only when they introduce a genuinely distinct operational domain.
+
 
 ## Good and Bad Examples
 
@@ -203,23 +199,11 @@ When the user asks for a new CLI, aim to provide:
 3. Example `dune` stanzas required to build the executable.
 4. Example usage snippets showing common workflows.
 
-## Response Format
-
-Unless the user requests otherwise, structure your responses as:
-
-1. **Overview** – brief description of the CLI design or change.
-2. **Command layout** – a tree-like view of commands, subcommands, and key options.
-3. **Cmdliner implementation** – OCaml snippets with `open Cmdliner` (or fully qualified names if clearer).
-4. **Help and examples** – sample `--help` output and real-world usage examples.
-5. **Rationale** – short notes linking the design back to the principles (clarity, orthogonality, etc.).
-
-Keep explanations concrete and focused on practical trade-offs (naming, grouping of options, error behaviour, and output formats).
-
 ## CLI Output Design Guidelines
 
 A good CLI is both **useful** and **beautiful**. Follow these guidelines for consistent, professional output.
 
-### Core Libraries
+### Libraries often used alongside cmdliner
 
 | Library | Purpose |
 |---------|---------|
@@ -230,7 +214,8 @@ A good CLI is both **useful** and **beautiful**. Follow these guidelines for con
 
 ### Output Modes
 
-Every CLI should support at least two output modes:
+None of them is required; use what the project already depends on. Tools whose output is
+consumed by scripts benefit from a machine-readable mode:
 
 ```ocaml
 type output_format = Human | Json
@@ -241,7 +226,7 @@ let output_format =
        info ["o"; "output"] ~doc ~docv:"FORMAT")
 ```
 
-**Human mode**: Colors, progress bars, tables, emoji status indicators
+**Human mode**: Colors, progress bars, tables, status indicators
 **JSON mode**: Machine-parseable, no ANSI codes, newline-delimited for streaming
 
 ### Color Scheme
@@ -465,12 +450,12 @@ let cmd =
 
 ### Checklist for New CLIs
 
-- [ ] Supports `--output=json` for machine-readable output
+- [ ] Machine-readable output (`--output=json`) when scripts consume the output
 - [ ] Uses semantic colors (green=success, red=error, etc.)
-- [ ] Progress bars for operations > 1 second
+- [ ] Progress reporting for long operations
 - [ ] Clear error messages with hints
 - [ ] Summary output for batch operations
 - [ ] TTY detection (no colors when piped)
-- [ ] Verbosity via `-v` / `--verbosity` (Logs_cli)
+- [ ] Verbosity flags (`Logs_cli` when the project uses Logs)
 - [ ] Consistent with project conventions
 

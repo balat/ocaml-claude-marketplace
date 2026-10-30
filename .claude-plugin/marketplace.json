@@ -6,7 +6,7 @@
     "email": "anil@recoil.org"
   },
   "metadata": {
-    "description": "OCaml development plugins for Claude Code including project setup, build migration, RFC integration, opam publishing, and code style assistance",
+    "description": "OCaml development plugins for Claude Code: project setup, build migration, RFC integration, opam publishing, code style, concurrency with Lwt and Eio, and the Ocsigen web framework",
     "version": "1.2.0",
     "pluginRoot": "./plugins"
   },
@@ -14,8 +14,8 @@
     {
       "name": "ocaml-dev",
       "source": "./plugins/ocaml-dev",
-      "description": "Comprehensive OCaml development toolkit with project setup, build migration, testing, RFC integration, opam publishing, and code style assistance",
-      "version": "1.5.0",
+      "description": "Comprehensive OCaml development toolkit: project setup, build migration, testing, RFC integration, opam publishing, code style, Lwt and Eio concurrency, and the Ocsigen web framework",
+      "version": "1.6.0",
       "author": {
         "name": "Anil Madhavapeddy",
         "email": "anil@recoil.org"
