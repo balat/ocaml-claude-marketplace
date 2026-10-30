@@ -46,8 +46,8 @@ let () =
         ; Eliom.App.run () ] ]
 ```
 
-`dune exec mysite` builds and runs it; the default port is 8080. This is what the
-`app.exe` distillery template sets up.
+`dune exec mysite` builds and runs it; the default port is 8080. The `app` distillery
+template sets this up in `app/main`.
 
 ## Ocsigen Server as an executable with a configuration file
 
@@ -76,8 +76,8 @@ describe it in `mysite.conf`:
 
 Run `ocsigenserver -c mysite.conf`. Several `<eliommodule>` can be loaded into one host;
 extensions such as `deflatemod`, `redirectmod`, `revproxy`, `accesscontrol` and
-`authbasic` are declared the same way and configured inside `<host>`. This is what the
-`app.lib` distillery template sets up.
+`authbasic` are declared the same way and configured inside `<host>`. The `app` distillery
+template also sets this up, with `mysite.conf`.
 
 ## Timeouts and limits
 

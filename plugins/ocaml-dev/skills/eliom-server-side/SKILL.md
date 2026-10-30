@@ -172,10 +172,10 @@ garbage collected, and register them with a session scope
 
 ## Project setup
 
-- `eliom-distillery -name mysite -template app.exe` creates a static executable project
-  (dune, a main service, no configuration file); `-template app.lib` builds a library
-  loaded by `ocsigenserver` with a configuration file. `eliom-distillery -list-templates`
-  shows the templates.
+- `eliom-distillery -name mysite -template app` creates a dune project that runs either as
+  a standalone executable (`dune exec mysite`, no configuration file) or as a library
+  loaded by `ocsigenserver` with `mysite.conf`. `eliom-distillery -list-templates` shows
+  the templates.
 - By hand: a dune executable with `eliom.server`, `ocsigenserver.ext.staticmod` and
   `ocsipersist-sqlite` in `libraries`, calling `Ocsigen.Server.start` with
   `Eliom.App.run ()` among the host's extensions. Details in `references/config.md`.
